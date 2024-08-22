@@ -17,7 +17,6 @@ namespace Chat.Hubs
             await Clients
                 .Group(connection.ChatRoom)
                 .ReceiveMessage("Admin",$"{connection.UserName} join chat");
-        
         }
     }
 }
