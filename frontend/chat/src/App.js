@@ -15,7 +15,7 @@ function App() {
     .build();
 
   connection.on("ReceiveMessage", (userName, message) => {
-     
+     setMessages((messages) => [...messages, {userName, message}])
     });
 
     try{
@@ -23,7 +23,7 @@ function App() {
       await connection.invoke("JoinChat", {userName, chatRoom});
       
       setConnection(connection);
-    
+      setChatRoom(chatRoom);
     }catch(error){
       console.log(error);
     }
