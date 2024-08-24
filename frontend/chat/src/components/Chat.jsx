@@ -1,12 +1,17 @@
 import { Button, CloseButton, Heading, Input} from "@chakra-ui/react";
 import { Message } from "./Message";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 
 
 export const Chat = ({ messages, chatRoom, closeChat, sendMessage }) => {
     const [message, setMessage] = useState("");
-    
+    const messagesEndRef = useRef();
+
+    useEffect(() => {
+        messagesEndRef.current.scrollIntoView();
+    }, [messages])
+
     const onSendMessage = () => {
         if (message.trim() !== "") { // Проверка на пустое сообщение
             sendMessage(message);
@@ -23,6 +28,7 @@ export const Chat = ({ messages, chatRoom, closeChat, sendMessage }) => {
             {messages.map((messageInfo, index) => (
                 <Message messageInfo={messageInfo} key={index} />
             ))}
+            <span ref={messagesEndRef}/>
         </div>
         <div className="flex gap-3">
             <Input 
