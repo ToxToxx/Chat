@@ -5,7 +5,6 @@ export const Message = ({ messageInfo }) => {
                 {messageInfo.userName}
             </span>
             <div className = "p-2 bg-gray-100 rounded-lg shadow-md">
-                {console.log(messageInfo)}
                 {messageInfo.message}
             </div>
         </div>

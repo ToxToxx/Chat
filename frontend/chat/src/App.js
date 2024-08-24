@@ -32,7 +32,11 @@ function App() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100" >
-         {connection? <Chat messages = {messages} chatRoom = {chatRoom}/> :  <WaitingRoom joinChat={joinChat}/>}
+         {connection? (
+           <Chat messages = {messages} chatRoom = {chatRoom}/>)
+            : ( 
+            <WaitingRoom joinChat={joinChat}/>
+            )}
           </div>
   );
 }
