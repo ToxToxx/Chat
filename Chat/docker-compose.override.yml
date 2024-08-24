@@ -2,13 +2,14 @@ version: '3.4'
 
 services:
   chat:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
+    image: "${DOCKER_REGISTRY-}chat"
+    build:
+      context: .
+      dockerfile: Chat/Dockerfile 
+    restart: always
+
+  realtimechat.redis:
+    image: redis
+    restart: always
     ports:
-      - "8080"
-      - "8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - "6379:6379"

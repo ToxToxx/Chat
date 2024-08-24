@@ -1,8 +1,15 @@
 version: '3.4'
 
 services:
-   realtimechat.redis:
+  chat:
+    image: "${DOCKER_REGISTRY-}chat"
+    build:
+      context: .
+      dockerfile: Chat/Dockerfile 
+    restart: always
+
+  realtimechat.redis:
     image: redis
     restart: always
     ports:
-        - "6379:6379"
+      - "6379:6379"
