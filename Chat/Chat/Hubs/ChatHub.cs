@@ -14,7 +14,7 @@ namespace Chat.Hubs
     public class ChatHub : Hub<IChatClient>
     {
         private readonly IDistributedCache _cache;
-        
+
         public ChatHub(IDistributedCache cache)
         {
             _cache = cache;
@@ -25,47 +25,49 @@ namespace Chat.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, connection.ChatRoom);
 
             var stringConnection = JsonSerializer.Serialize(connection);
-            
-            await _cache.SetStringAsync(Context.ConnectionId,stringConnection);
+            await _cache.SetStringAsync(Context.ConnectionId, stringConnection);
 
-            await Clients
-                .Group(connection.ChatRoom)
-                .ReceiveMessage("Admin",$"{connection.UserName} join chat");
+            await NotifyGroup(connection.ChatRoom, "Admin", $"{connection.UserName} join chat");
         }
 
         public async Task SendMessage(string message)
         {
-            var stringConnection = await _cache.GetAsync(Context.ConnectionId);
+            var connection = await GetConnection(Context.ConnectionId);
 
-            var connection = JsonSerializer.Deserialize<UserConnection>(stringConnection);
-
-            if (connection is not null) 
+            if (connection is not null)
             {
-                await Clients
-                .Group(connection.ChatRoom)
-                .ReceiveMessage(connection.UserName, message);
+                await NotifyGroup(connection.ChatRoom, connection.UserName, message);
             }
-
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var stringConnection = await _cache.GetAsync(Context.ConnectionId);
-
-            var connection = JsonSerializer.Deserialize<UserConnection>(stringConnection);
+            var connection = await GetConnection(Context.ConnectionId);
 
             if (connection is not null)
             {
                 await _cache.RemoveAsync(Context.ConnectionId);
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, connection.ChatRoom);
 
-                await Clients
-                .Group(connection.ChatRoom)
-                .ReceiveMessage("Admin", $"{connection.UserName} left chat");
-
+                await NotifyGroup(connection.ChatRoom, "Admin", $"{connection.UserName} left chat");
             }
 
             await base.OnDisconnectedAsync(exception);
         }
-    } 
+
+        // Getting and deserialization function
+        private async Task<UserConnection?> GetConnection(string connectionId)
+        {
+            var stringConnection = await _cache.GetStringAsync(connectionId);
+            return stringConnection is not null
+                ? JsonSerializer.Deserialize<UserConnection>(stringConnection)
+                : null;
+        }
+
+        // Notify function
+        private async Task NotifyGroup(string chatRoom, string userName, string message)
+        {
+            await Clients.Group(chatRoom).ReceiveMessage(userName, message);
+        }
+    }
 }
