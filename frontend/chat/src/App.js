@@ -1,10 +1,12 @@
 import { WaitingRoom } from "./components/WaitingRoom";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import { useState } from "react";
+import { Chat } from "./components/Chat";
 
 function App() {
   const[connection, setConnection] = useState(null);
-
+  const[chatRoom, setChatRoom ] = useState(" ");
+  const[messages, setMessages ] = useState([]);
 
   const joinChat = async (userName, chatRoom) => {
     var connection = new HubConnectionBuilder()
@@ -13,8 +15,7 @@ function App() {
     .build();
 
   connection.on("ReceiveMessage", (userName, message) => {
-     console.log(userName);
-     console.log(message);
+     
     });
 
     try{
@@ -31,7 +32,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100" >
-          <WaitingRoom joinChat={joinChat}/>
+         {connection? <Chat messages = {messages} chatRoom = {chatRoom}/> :  <WaitingRoom joinChat={joinChat}/>}
           </div>
   );
 }
